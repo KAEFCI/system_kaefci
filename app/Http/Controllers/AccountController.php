@@ -99,4 +99,21 @@ class AccountController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $users = User::query();
+
+        if ($search) {
+            $users->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('role', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $users->paginate(10);
+        return view('manageaccount', compact('users', 'search'));
+    }
 }

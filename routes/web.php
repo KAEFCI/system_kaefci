@@ -50,4 +50,6 @@ Route::middleware(['auth','touch.online'])->group(function () {
     Route::get('/sidebar', function () {
         return view('sidebar');
     });
+    
+    Route::get('/accounts', [AccountController::class, 'index'])->name('account.index');
 });

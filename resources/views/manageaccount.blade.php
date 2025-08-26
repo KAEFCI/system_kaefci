@@ -22,7 +22,7 @@
       <div class="main-content">
         <div class="card-table">
           <div class="table-header">
-            <input type="text" placeholder="Search..." />
+            <input type="text" placeholder="Search..." value="{{ request('search') }}" />
             <button class="add-account-btn" type="button">Add Account</button>
           </div>
 
@@ -160,6 +160,26 @@
         }
       });
     };
+
+    // Search handler tanpa mengubah struktur tampilan (Enter untuk mencari)
+    (function(){
+      const searchInput = document.querySelector('.table-header input[type="text"]');
+      if(!searchInput) return;
+      searchInput.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          const term = searchInput.value.trim();
+          const url = new URL(window.location.href);
+          if(term){
+            url.searchParams.set('search', term);
+          } else {
+            url.searchParams.delete('search');
+          }
+            // Reset ke halaman pertama saat pencarian baru
+          url.searchParams.delete('page');
+          window.location = url.toString();
+        }
+      });
+    })();
   </script>
 </body>
 </html>
