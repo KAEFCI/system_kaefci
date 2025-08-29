@@ -24,8 +24,16 @@ class AccountController extends Controller
             'password' => 'required|min:6'
         ]);
 
+        // Generate account_id yang lebih aman (ambil max nomor existing lalu +1)
+        $maxNum = User::whereNotNull('account_id')
+            ->where('account_id', 'like', 'acc%')
+            ->selectRaw("MAX(CAST(SUBSTRING(account_id, 4) AS UNSIGNED)) as max_num")
+            ->value('max_num');
+        $nextNum = ($maxNum ?? 0) + 1;
+        $accountId = 'acc' . str_pad($nextNum, 2, '0', STR_PAD_LEFT);
+
         User::create([
-            'account_id' => 'acc' . str_pad(User::count() + 1, 2, '0', STR_PAD_LEFT),
+            'account_id' => $accountId,
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
@@ -63,40 +71,82 @@ class AccountController extends Controller
             'password' => 'required'
         ]);
 
-        $credentials = $request->only('email', 'password');
-        $user = \App\Models\User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak terdaftar.'])->withInput();
+        $credentials = $request->only('email','password');
+        $user = User::where('email',$request->email)->first();
+        if(!$user){
+            return back()->withErrors(['email'=>'Email tidak terdaftar.'])->withInput();
         }
-
-        if ($user->status === 'disable') {
-            return back()->withErrors(['email' => 'Akun dinonaktifkan. Hubungi administrator.'])->withInput();
+        if($user->status === 'disable'){
+            return back()->withErrors(['email'=>'Akun dinonaktifkan. Hubungi administrator.'])->withInput();
         }
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            $user = Auth::user();
-            $user->update([
-                'login_status'  => 'online',
-                'last_login_at' => now(), // selalu update saat sukses login
-            ]);
-            return redirect()->intended('/dashboard');
+        $roleGuard = $user->role; // guard name = role
+        $allowedGuards = ['superadmin','hrd','supervisor','karyawan'];
+        if(!in_array($roleGuard,$allowedGuards,true)){
+            return back()->withErrors(['email'=>'Role tidak dikenali.'])->withInput();
         }
-
-        return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
+        // Attempt hanya pada guard role agar sesi lain (guard berbeda) tidak tersentuh
+        if(!Auth::guard($roleGuard)->attempt($credentials)){
+            return back()->withErrors(['email'=>'Email atau password salah.'])->withInput();
+        }
+        $authUser = Auth::guard($roleGuard)->user();
+        $authUser->forceFill([
+            'login_status'  => 'online',
+            'last_login_at' => now(),
+        ])->save();
+        return match($roleGuard){
+            'superadmin' => redirect()->route('dashboard'),
+            'hrd' => redirect()->route('dashboard.hrd'),
+            'supervisor' => redirect()->route('dashboard.supervisor'),
+            'karyawan' => redirect()->route('dashboard.karyawan'),
+            default => redirect()->route('login')
+        };
     }
 
     public function logout(Request $request)
     {
-        if (auth()->check()) {
-            auth()->user()->update([
-                'login_status' => 'offline',
-            ]);
+        $guards = ['superadmin','hrd','supervisor','karyawan'];
+        $target = $request->input('guard');
+        if(!$target || !in_array($target,$guards,true)){
+            foreach($guards as $g){ if(Auth::guard($g)->check()){ $target=$g; break; } }
         }
-        Auth::logout();
+        if($target && Auth::guard($target)->check()){
+            $u = Auth::guard($target)->user();
+            if($u){ $u->forceFill(['login_status'=>'offline'])->save(); }
+            Auth::guard($target)->logout();
+        }
+        // Jika masih ada guard lain aktif JANGAN invalidate session (biar tidak logout massal / tidak 419)
+        foreach($guards as $g){
+            if(Auth::guard($g)->check()){
+                return match($g){
+                    'superadmin' => redirect()->route('dashboard'),
+                    'hrd' => redirect()->route('dashboard.hrd'),
+                    'supervisor' => redirect()->route('dashboard.supervisor'),
+                    'karyawan' => redirect()->route('dashboard.karyawan'),
+                    default => redirect()->route('login')
+                };
+            }
+        }
+        // Semua sudah keluar -> reset session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        return redirect()->route('login');
+    }
+
+    // Logout spesifik berdasarkan role (guard) tanpa memengaruhi guard lain
+    public function logoutRole(Request $request, string $role)
+    {
+        $guards = ['superadmin','hrd','supervisor','karyawan'];
+        if(!in_array($role,$guards,true)){
+            return back()->with('error','Role tidak valid');
+        }
+        if(Auth::guard($role)->check()){
+            $u = Auth::guard($role)->user();
+            if($u){ $u->forceFill(['login_status'=>'offline'])->save(); }
+            Auth::guard($role)->logout();
+        }
+        // Jika masih ada guard lain aktif, kembali ke halaman sebelumnya / root (root akan redirect ke guard aktif lain)
+        foreach($guards as $g){ if(Auth::guard($g)->check()){ return redirect()->back(); } }
+        // Kalau tidak ada guard lain -> ke login tanpa invalidate global (biarkan sesi agar tidak ganggu token tab lain)
         return redirect()->route('login');
     }
 

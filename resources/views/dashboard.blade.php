@@ -25,7 +25,7 @@
       <p class="welcome-text">Halo, Super Admin 👋</p>
 
       <div class="metrics">
-        <div class="metric"><h3>Total admin</h3><p>05</p></div>
+  <div class="metric"><h3>Total Account</h3><p>{{ $totalAccount }}</p></div>
         <div class="metric"><h3>Total karyawan</h3><p>500</p></div>
         <div class="metric"><h3>Pendapatan hari ini</h3><p>Rp15.500.999</p></div>
         <div class="metric"><h3>Stock</h3><p>550/<span class="muted">1.000</span></p></div>

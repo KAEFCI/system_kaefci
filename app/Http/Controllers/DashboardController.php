@@ -8,6 +8,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('dashboard');
+    // Hitung semua user
+    $totalAccount = \App\Models\User::count();
+        return view('dashboard', compact('totalAccount'));
     }
 }

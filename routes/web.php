@@ -17,39 +17,58 @@ Route::get('/login', function () {
 Route::post('/login', [AccountController::class, 'login']);
 
 // Route untuk logout (POST request)
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AccountController::class, 'logout'])->name('logout');
+// Route logout per role (tanpa memutus guard lain)
+Route::post('/logout/{role}', [AccountController::class, 'logoutRole'])->name('logout.role');
 
-// Redirect root ke login jika belum login, ke dashboard jika sudah login
+// Redirect root: cek semua guard, pilih pertama yang aktif
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
+    $guards = ['superadmin','hrd','supervisor','karyawan'];
+    foreach ($guards as $g) {
+        if(auth()->guard($g)->check()) {
+            $role = auth()->guard($g)->user()->role;
+            return match($role){
+                'superadmin' => redirect()->route('dashboard'),
+                'hrd' => redirect()->route('dashboard.hrd'),
+                'supervisor' => redirect()->route('dashboard.supervisor'),
+                'karyawan' => redirect()->route('dashboard.karyawan'),
+                default => redirect()->route('login')
+            };
+        }
     }
     return redirect()->route('login');
 });
 
-// Protected routes - harus login terlebih dahulu
-Route::middleware(['auth','touch.online'])->group(function () {
-    // Route untuk dashboard
+// ================= SUPERADMIN (guard: superadmin) =================
+Route::middleware(['auth:superadmin','touch.online'])->group(function(){
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Route untuk manage account
     Route::get('/manageaccount', [MngaccountController::class, 'index'])->name('manageaccount');
-    
-    // Route untuk analysis data
     Route::get('/analysisdata', [AnalysisController::class, 'index'])->name('analysis');
-    
-    // Route untuk settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-    
-    // Route untuk account management
     Route::post('/account/store', [AccountController::class, 'store'])->name('account.store');
     Route::put('/account/{id}', [AccountController::class, 'update'])->name('account.update');
     Route::delete('/account/{id}', [AccountController::class, 'destroy'])->name('account.destroy');
-    
-    // Route untuk sidebar
-    Route::get('/sidebar', function () {
-        return view('sidebar');
-    });
-    
     Route::get('/accounts', [AccountController::class, 'index'])->name('account.index');
+    Route::get('/sidebar', function () { return view('sidebar'); });
+});
+
+// ================= HRD (guard: hrd) =================
+Route::middleware(['auth:hrd','touch.online'])->group(function(){
+    Route::get('/dashboard-hrd', function(){
+        $totalKaryawan = \App\Models\User::where('role','karyawan')->count();
+        return view('hrd.dashboard_hrd', compact('totalKaryawan')); 
+    })->name('dashboard.hrd');
+    Route::get('/hrd/manage-data', function(){ return view('hrd.managedata'); })->name('managedata.hrd');
+    Route::get('/hrd/absensi', function(){ return view('hrd.absensi'); })->name('absensi.hrd');
+    Route::get('/hrd/penggajian', function(){ return view('hrd.penggajian'); })->name('penggajian.hrd');
+});
+
+// ================= SUPERVISOR (guard: supervisor) =================
+Route::middleware(['auth:supervisor','touch.online'])->group(function(){
+    Route::get('/dashboard-supervisor', function(){ return view('supervisor.dashboard_supervisor'); })->name('dashboard.supervisor');
+});
+
+// ================= KARYAWAN (guard: karyawan) =================
+Route::middleware(['auth:karyawan','touch.online'])->group(function(){
+    Route::get('/dashboard-karyawan', function(){ return view('karyawan.dashboard_karyawan'); })->name('dashboard.karyawan');
 });

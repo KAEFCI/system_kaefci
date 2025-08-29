@@ -43,6 +43,7 @@
                 <select name="role" required>
                   <option value="hrd">HRD</option>
                   <option value="supervisor">Supervisor</option>
+                  <option value="karyawan">Karyawan</option>
                 </select>
 
                 <label for="status">Status</label>
@@ -124,42 +125,46 @@
 
     addBtn.addEventListener("click", function () {
       modal.style.display = "block";
+      document.body.classList.add('modal-open');
     });
 
     function closeModal() {
       modal.style.display = "none";
+      document.body.classList.remove('modal-open');
     }
 
-    window.onclick = function (event) {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    };
+  // Disable close on outside click for add modal
 
     function openEditModal(userId) {
       document.getElementById(`editAccountModal-${userId}`).style.display = "block";
+      document.body.classList.add('modal-open');
     }
 
     function closeEditModal(userId) {
       document.getElementById(`editAccountModal-${userId}`).style.display = "none";
+      document.body.classList.remove('modal-open');
     }
 
     function openDeleteModal(userId) {
       document.getElementById(`deleteAccountModal-${userId}`).style.display = "block";
+      document.body.classList.add('modal-open');
     }
 
     function closeDeleteModal(userId) {
       document.getElementById(`deleteAccountModal-${userId}`).style.display = "none";
+      document.body.classList.remove('modal-open');
     }
 
-    // Optional: close modal when clicking outside any modal
-    window.onclick = function (event) {
-      document.querySelectorAll(".modal").forEach((modal) => {
-        if (event.target === modal) {
-          modal.style.display = "none";
-        }
-      });
-    };
+    // Remove closing by clicking outside modals (no-op to override previous handlers)
+    window.onclick = function () {};
+
+    // Prevent ESC key from closing modals
+    window.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
 
     // Search handler tanpa mengubah struktur tampilan (Enter untuk mencari)
     (function(){

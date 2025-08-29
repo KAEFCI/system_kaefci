@@ -3,48 +3,48 @@
         <img src="{{ asset('img/logo.png') }}" alt="KFC Logo" class="logo">
     </div>
     <ul class="nav">
-        <li class="{{ request()->routeIs('dashboard') ? 'menu-active' : '' }}">
-            <a href="{{ route('dashboard') }}">
+        <li class="{{ request()->routeIs('dashboard.hrd') ? 'menu-active' : '' }}">
+            <a href="{{ route('dashboard.hrd') }}">
                 <span class="indicator"></span>
                 <span class="icon"><img src="{{ asset('img/Dashboard_icon.png') }}" alt="Dashboard Icon"></span>
                 <span class="menu-text">Dashboard</span>
             </a>
         </li>
-        <li class="{{ request()->routeIs('manageaccount') ? 'menu-active' : '' }}">
-            <a href="{{ route('manageaccount') }}">
+        <li class="{{ request()->routeIs('managedata.hrd') ? 'menu-active' : '' }}">
+            <a href="{{ route('managedata.hrd') }}">
                 <span class="indicator"></span>
-                <span class="icon"><img src="{{ asset('img/User_icon.png') }}" alt="Manage Icon"></span>
-                <span class="menu-text">Manage Account</span>
+                <span class="icon"><img src="{{ asset('img/Document_icon.png') }}" alt="Manage Icon"></span>
+                <span class="menu-text">Manage Data</span>
             </a>
         </li>
-        <li class="{{ request()->routeIs('analysis') ? 'menu-active' : '' }}">
-            <a href="{{ route('analysis') }}">
+        <li class="{{ request()->routeIs('absensi.hrd') ? 'menu-active' : '' }}">
+            <a href="{{ route('absensi.hrd') }}">
                 <span class="indicator"></span>
-                <span class="icon"><img src="{{ asset('img/Document_icon.png') }}" alt="Document Icon"></span>
-                <span class="menu-text">Analysis Data</span>
+                <span class="icon"><img src="{{ asset('img/User_icon.png') }}" alt="Document Icon"></span>
+                <span class="menu-text">Absensi</span>
             </a>
         </li>
-        <li class="{{ request()->routeIs('settings') ? 'menu-active' : '' }}">
-            <a href="{{ route('settings') }}">
+        <li class="{{ request()->routeIs('penggajian.hrd') ? 'menu-active' : '' }}">
+            <a href="{{ route('penggajian.hrd') }}">
                 <span class="indicator"></span>
-                <span class="icon"><img src="{{ asset('img/Settings_icon.png') }}" alt="Settings Icon"></span>
-                <span class="menu-text">Settings</span>
+                <span class="icon"><img src="{{ asset('img/Penggajian_icon.png') }}" alt="Settings Icon"></span>
+                <span class="menu-text">Penggajian</span>
             </a>
         </li>
     </ul>
     <div class="user-info" id="userInfo">
         <div class="user-circle"></div>
         <div class="user-details">
-            @include('partials.current-user',['expectedGuard'=>'superadmin'])
+            @include('partials.current-user', ['expectedGuard' => 'hrd'])
         </div>
         <span class="arrow" id="userArrow">&#8250;</span>
 
         <!-- Dropdown kanan -->
         <div class="user-dd" id="userDropdown">
             <a href="{{ route('settings') }}" class="ud-item">Settings</a>
-            <form action="{{ route('logout.role','superadmin') }}" method="POST" class="ud-form">
+            <form action="{{ route('logout.role','hrd') }}" method="POST" class="ud-form">
                 @csrf
-                <button type="submit" class="ud-item logout">Logout (superadmin)</button>
+                <button type="submit" class="ud-item logout">Logout (hrd)</button>
             </form>
         </div>
     </div>

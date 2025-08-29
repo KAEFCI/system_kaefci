@@ -40,6 +40,22 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+            'superadmin' => [
+                'driver' => 'session',
+                'provider' => 'users',
+            ],
+            'hrd' => [
+                'driver' => 'session',
+                'provider' => 'users',
+            ],
+            'supervisor' => [
+                'driver' => 'session',
+                'provider' => 'users',
+            ],
+            'karyawan' => [
+                'driver' => 'session',
+                'provider' => 'users',
+            ],
     ],
 
     /*

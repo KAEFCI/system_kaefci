@@ -18,6 +18,7 @@
                 <select name="role" required>
                     <option value="hrd" {{ $user->role == 'hrd' ? 'selected' : '' }}>HRD</option>
                     <option value="supervisor" {{ $user->role == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
+                    <option value="karyawan" {{ $user->role == 'karyawan' ? 'selected' : '' }}>Karyawan</option>
                 </select>
             @endif
 
