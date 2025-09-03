@@ -1,0 +1,42 @@
+/* Footer isolated styles - do not override elsewhere */
+.app-footer[data-footer] {
+  background:#fff;
+  border-top:1px solid #eee;
+  margin-top:40px;
+  width:100%;
+  position:relative;
+  flex-shrink:0;
+  font-family:'Poppins', Arial, sans-serif;
+  z-index:10;
+}
+.app-footer__inner {
+  max-width:1200px;
+  margin:0 auto;
+  padding:18px 24px 30px;
+  text-align:center;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  font-weight:500;
+  font-size:12px;
+  color:#888;
+}
+.app-footer__text { line-height:1.4; }
+.app-footer__link {
+  color:#c8102e;
+  text-decoration:none;
+  font-weight:600;
+}
+.app-footer__link:hover { text-decoration:underline; }
+
+/* Dark mode safeguard (optional) */
+@media (prefers-color-scheme: dark) {
+  .app-footer[data-footer] { background:#111; border-top:1px solid #333; }
+  .app-footer__inner { color:#bbb; }
+  .app-footer__link { color:#ff4460; }
+}
+
+/* Print: sembunyikan jika tidak diperlukan */
+@media print { .app-footer[data-footer] { display:none !important; } }

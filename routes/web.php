@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalysisController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\EmployeeController;
 
 // Route untuk halaman login (tampilan form login) - accessible without auth
 Route::get('/login', function () {
@@ -61,6 +62,14 @@ Route::middleware(['auth:hrd','touch.online'])->group(function(){
     Route::get('/hrd/manage-data', function(){ return view('hrd.managedata'); })->name('managedata.hrd');
     Route::get('/hrd/absensi', function(){ return view('hrd.absensi'); })->name('absensi.hrd');
     Route::get('/hrd/penggajian', function(){ return view('hrd.penggajian'); })->name('penggajian.hrd');
+// Endpoint untuk modal tambah team
+Route::get('/modal/add-team', function() {
+    return view('hrd.add-team');
+});
+// Endpoint untuk modal edit/tambah karyawan
+Route::get('/modal/edit', function () {
+    return view('hrd.edit');
+});
 });
 
 // ================= SUPERVISOR (guard: supervisor) =================

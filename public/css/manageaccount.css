@@ -19,18 +19,16 @@ html, body {
   display: flex;
   min-height: 100vh;
 }
-
-/* SIDEBAR */
 .sidebar {
   width: 270px;
-  height: 100vh;
-  position: fixed;
+  border-radius: 10px;
+  font-size: 24px;
   top: 0;
   left: 0;
   background-color: #fff;
   border-right: 1px solid #eee;
-  padding: 20px;
-  z-index: 1000;
+  width: 48px; 
+  height: 48px; 
   overflow-y: auto;
 }
 
@@ -39,8 +37,28 @@ html, body {
   margin-left: 270px;
   width: calc(100% - 270px);
   background: #fff;
+.page-icon i { color: #c8102e; display: inline-block; width: 36px; height: 36px; font-size:36px }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+  .page-icon img {
+    width: 36px;
+    height: 36px;
+  }
+  .page-icon i {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+  }
+  h2 { font-size: 1.25rem; gap: 10px }
+}
   padding: 40px;
-  overflow: auto;
+ overflow: visible !important;
 }
 
 /* HEADER BAR */
@@ -59,6 +77,53 @@ html, body {
   color: #E3002C;
 }
 
+/* H2 styling sama seperti managedata */
+h2 {
+  margin-bottom: 14px;
+  color: #E3002C;
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: .4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Font Awesome icon in H2 */
+h2 i.fas, h2 i.fab, h2 i.far, h2 i.fal, h2 i.fad {
+  font-size: 28px;
+  color: #E3002C;
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  line-height: 36px;
+}
+
+/* Page heading icon badge */
+.page-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: transparent;
+  color: #E3002C;
+  border-radius: 10px;
+  font-size: 24px;
+  box-shadow: none;
+}
+
+.page-icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: inline-block;
+  background: transparent;
+}
+
+.page-icon i { color: #c8102e; display: inline-block; width: 36px; height: 36px; font-size:36px }
+
 /* MAIN CONTENT */
 .main-content {
   flex: 1;
@@ -68,6 +133,44 @@ html, body {
   gap: 40px;
   width: 100%;
 }
+
+/* Tambahan style container agar bisa digunakan jika diperlukan */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Tambahan style card-table agar lebih konsisten dengan managedata */
+.card-table {
+  border: 1px solid #ead4d3;
+  margin-bottom: 38px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Container seperti managedata */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Card-table layout dan posisi */
+.card-table {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 38px;
+  border: 1px solid #ead4d3;
+  position: relative;
+  overflow: hidden;
+}
+
+
 
 /* CARD TABLE */
 .card-table {
@@ -86,12 +189,22 @@ html, body {
 }
 
 .table-header input[type="text"] {
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  width: 250px;
+  padding: 12px 18px;
+  border: 2px solid #f0dede;
+  border-radius: 15px;
+  width: 300px;
   font-size: 14px;
+  background: #fff;
 }
+
+.table-header input[type="text"]:hover,
+.table-header input[type="text"]:focus {
+  border-color: #E3002C;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.table-header input::placeholder { color: #bca7a7; font-style: italic; }
 
 .add-account-btn {
   background-color: #E3002C;
@@ -115,25 +228,90 @@ html, body {
 /* TABLE */
 .card-table table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  margin-top: 10px;
+  font-size: .88rem;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .card-table thead {
-  background: #fff;
-  color: #000;
-  font-weight: 600;
+  background: #c8102e;
+  color: #fff;
+  font-weight: bold; /* stronger bold for header labels */
   text-align: center;
+  letter-spacing: .3px;
 }
+
+.card-table th {
+  background: #c8102e;
+  color: #fff;
+  font-weight: 700; /* make header cells bold */
+  padding: 12px 14px;
+  text-align: center;
+  font-size: .75rem;
+  letter-spacing: .3px;
+}
+
+/* Ensure header labels are uppercase and very visible */
+.card-table thead th {
+  text-transform: capitalize;
+  font-weight: 700;
+  letter-spacing: .6px;
+}
+
+.card-table th:first-child {
+  border-top-left-radius: 14px;
+}
+.card-table th:last-child {
+  border-top-right-radius: 14px;
+}
+
 
 .card-table th,
 .card-table td {
-  padding: 12px;
+  padding: 12px 14px;
   text-align: center;
+  vertical-align: middle;
+  font-weight: 500;
+  border-top: 1px solid #f3d1cf;
 }
 
-.card-table tbody tr:nth-child(odd) {
-  background: #f9f9fc;
+.card-table tbody tr td:first-child {
+  border-radius: 10px 0 0 10px;
+  border-top: none;
+}
+.card-table tbody tr td:last-child {
+  border-radius: 0 10px 10px 0;
+}
+.card-table tbody tr:first-child td {
+  border-top: none;
+}
+
+
+.card-table tbody tr { transition: background .18s ease; }
+
+.card-table tbody tr {
+  background: #fff;
+  box-shadow: 0 2px 5px -2px rgba(0, 0, 0, .18);
+  transition: .28s;
+}
+.card-table tbody tr:nth-child(even) {
+  background: #fff6f5;
+}
+.card-table tbody tr:hover {
+  transform: translateY(-3px);
+  background: #ffe3e8;
+}
+.card-table td:hover,
+.card-table th:hover {
+  background: inherit;
+  transition: none;
+}
+.card-table th.active,
+.card-table td.active {
+  background: #ffc9c9;
 }
 
 /* STATUS BADGES */
@@ -172,34 +350,136 @@ html, body {
 .card-table .action {
   cursor: pointer;
   font-size: 22px;
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
 }
 
-/* PAGINATION */
+.action-menu {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+}
+.action-trigger {
+  pointer-events: auto;
+  z-index: 21;
+}
+.action-dropdown {
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+/* Pagination (improved) */
 .pagination {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 30px;
   align-items: center;
-  font-size: 13px;
-  color: #888;
+  justify-content: flex-end;
+  margin-top: 18px;
+  gap: 10px;
+  font-size: .7rem;
+}
+
+.pagination .pager-shell {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ead4d3;
+  padding: 6px 14px;
+  border-radius: 40px;
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, .18), 0 2px 8px -4px rgba(0, 0, 0, .05);
+  gap: 4px;
 }
 
 .pagination button {
-  background: #eee;
+  background: transparent;
   border: none;
-  border-radius: 6px;
-  width: 28px;
-  height: 28px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  color: #333;
+  font-size: .68rem;
   cursor: pointer;
+  position: relative;
+  color: #a10f0f;
+  border-radius: 28px;
+  transition: .25s;
+  letter-spacing: .4px;
 }
 
-.pagination button.active {
-  background: #E3002C;
-  color: #fff;
+.pagination button:not([disabled]):hover {
+  background: #ffe3e8;
 }
+
+.pagination button[disabled] {
+  opacity: .40;
+  cursor: not-allowed;
+}
+
+.pagination button.page-btn.active {
+  background: #c8102e;
+  color: #fff;
+  box-shadow: 0 4px 10px -4px rgba(196, 20, 17, .55);
+}
+
+.pagination .ellipsis {
+  padding: 0 4px;
+  font-weight: 600;
+  color: #b06b69;
+  user-select: none;
+}
+
+
+.pagination .pager-shell {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--kfc-border);
+  padding: 6px 14px;
+  border-radius: 40px;
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, .18), 0 2px 8px -4px rgba(0, 0, 0, .05);
+  gap: 4px;
+}
+
+.pagination button {
+  background: transparent;
+  border: none;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: .68rem;
+  cursor: pointer;
+  position: relative;
+  color: var(--kfc-red-dark);
+  border-radius: 28px;
+  transition: .25s;
+  letter-spacing: .4px;
+}
+
+.pagination button:not([disabled]):hover {
+  background: var(--kfc-soft);
+}
+
+.pagination button[disabled] {
+  opacity: .40;
+  cursor: not-allowed;
+}
+
+.pagination button.page-btn.active {
+  background: var(--kfc-red);
+  color: #fff;
+  box-shadow: 0 4px 10px -4px rgba(196, 20, 17, .55);
+}
+
+.pagination .ellipsis {
+  padding: 0 4px;
+  font-weight: 600;
+  color: #b06b69;
+  user-select: none;
+}
+
 
 /* MODAL */
 .modal {

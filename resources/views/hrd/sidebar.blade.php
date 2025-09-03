@@ -35,7 +35,7 @@
     <div class="user-info" id="userInfo">
         <div class="user-circle"></div>
         <div class="user-details">
-            @include('partials.current-user', ['expectedGuard' => 'hrd'])
+            @include('partials.current-user',['expectedGuard'=>'hrd'])
         </div>
         <span class="arrow" id="userArrow">&#8250;</span>
 
@@ -65,7 +65,7 @@
     /* Header bar di atas main-content */
     .header-bar {
         position: fixed;
-        left: 250px;
+        left: 270px;
         top: 0;
         width: 1190px;
         height: 90px;
@@ -91,7 +91,7 @@
 
     .sidebar {
         background: #fff;
-        width: 250px;
+        width: 270px;
         height: 100vh;
         overflow: hidden;
         padding: 32px 0 0 0;
@@ -103,6 +103,8 @@
         flex-direction: column;
         align-items: center;
         z-index: 1000;
+        margin-top: 0 !important; /* pastikan tidak terdorong turun */
+    transform: translateY(0) !important; /* reset jika ada transform dari script lain */
     }
 
     /* Logo di sidebar */
@@ -289,7 +291,7 @@
     /* Override style dropdown user ke kanan */
     .user-dd {
         position: absolute;
-        left: 100%;          /* keluar ke kanan sidebar */
+        left: 100%;          /* default keluar ke kanan sidebar */
         bottom: 0;
         margin-left: 10px;
         background:#fff;
@@ -302,9 +304,14 @@
         visibility:hidden;
         transform:translateY(6px);
         transition:all .22s ease;
-        z-index:1600;
+        z-index:6000; /* di atas footer & konten */
+        max-height:calc(100vh - 16px);
+        overflow-y:auto;
+        pointer-events:none; /* cegah klik saat sembunyi */
     }
-    .user-dd.show { opacity:1; visibility:visible; transform:translateY(0); }
+    .user-dd.show { opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto; }
+    /* Saat sudah dipindah ke body */
+    .user-dd.moved-from-sidebar { margin-left:0; bottom:auto; left:auto; }
 
     .ud-item,
     .ud-form button {
@@ -339,29 +346,64 @@
     if(!info || !menu || !arrow) return;
 
     function openMenu(){
-        menu.classList.add('show');
         arrow.classList.add('rotated');
-
-        // Posisi ke kanan (gunakan position:fixed supaya tidak ter-clipping overflow)
-        const rect = info.getBoundingClientRect();
+        // Pindahkan ke body sekali saja untuk hindari clipping overflow sidebar
+        if(menu.parentElement !== document.body){
+            document.body.appendChild(menu);
+            menu.classList.add('moved-from-sidebar');
+        }
+        // Tampilkan untuk ukur
+        menu.classList.add('show');
         menu.style.position = 'fixed';
-        menu.style.left = (rect.right + 8) + 'px';
-        // Tampilkan dulu untuk hitung tinggi
-        requestAnimationFrame(() => {
-            const h = menu.offsetHeight;
-            menu.style.top = (rect.bottom - h) + 'px'; // sejajarkan bawah
-            menu.style.zIndex = 3000;
+        menu.style.top = '-10000px';
+        menu.style.left = '-10000px';
+
+        requestAnimationFrame(()=>{
+            const rect = info.getBoundingClientRect();
+            let h = menu.offsetHeight;
+            let w = menu.offsetWidth;
+            // Batasi maksimum jika melebihi viewport
+            const maxH = window.innerHeight - 16; // padding 8px atas & bawah
+            if(h > maxH){
+                h = maxH;
+                menu.style.maxHeight = maxH + 'px';
+            }
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            let top;
+            if(spaceBelow >= h + 8){
+                top = rect.bottom; // bawah
+            } else if(spaceAbove >= h + 8){
+                top = rect.top - h; // atas
+            } else {
+                // Pilih sisi dengan ruang lebih dan biarkan scroll
+                if(spaceBelow >= spaceAbove){
+                    top = rect.bottom;
+                } else {
+                    top = Math.max(8, rect.top - h);
+                }
+            }
+            if(top < 8) top = 8;
+            if(top + h > window.innerHeight - 8){
+                top = window.innerHeight - h - 8;
+            }
+
+            let left = rect.right + 8; // kanan default
+            if(left + w > window.innerWidth - 8){
+                left = rect.left - w - 8; // pindah kiri
+                if(left < 8) left = 8;
+            }
+
+            menu.style.top = top + 'px';
+            menu.style.left = left + 'px';
+            menu.style.zIndex = 6000;
         });
     }
 
     function closeMenu(){
         menu.classList.remove('show');
         arrow.classList.remove('rotated');
-        // Jangan hapus seluruh style (biarkan transition); cukup bersihkan koordinat
-        menu.style.left = '';
-        menu.style.top = '';
-        menu.style.position = '';
-        menu.style.zIndex = '';
+        // Koordinat dibiarkan; saat buka ulang akan dihitung ulang
     }
 
     info.addEventListener('click', function(e){
@@ -383,5 +425,5 @@
     window.addEventListener('resize', () => {
         if(menu.classList.contains('show')) closeMenu();
     });
-})();
+})();   
 </script>

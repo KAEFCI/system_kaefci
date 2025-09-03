@@ -27,8 +27,8 @@
       <div class="metrics">
   <div class="metric"><h3>Total Account</h3><p>{{ $totalAccount }}</p></div>
         <div class="metric"><h3>Total karyawan</h3><p>500</p></div>
-        <div class="metric"><h3>Pendapatan hari ini</h3><p>Rp15.500.999</p></div>
-        <div class="metric"><h3>Stock</h3><p>550/<span class="muted">1.000</span></p></div>
+        <div class="metric"><h3>Pendapatan hari ini</h3><p>Rp100.500.999</p></div>
+        <div class="metric"><h3>Absensi hari ini</h3><p>200/<span class="muted">500</span></p></div>
       </div>
 
       <div class="charts">
@@ -40,5 +40,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ asset('js/dashboard.js') }}"></script>
+  @include('partials.footer')
 </body>
 </html>

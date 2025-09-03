@@ -23,8 +23,9 @@ class MngaccountController extends Controller
             });
         }
 
-        // Pagination agar tetap ringan saat data besar & append parameter search
-        $users = $query->paginate(10)->appends(['search' => $search]);
+    // Pagination agar tetap ringan saat data besar & append parameter search
+    // Use 5 items per page for server-side pagination
+    $users = $query->paginate(5)->appends(['search' => $search]);
 
         return view('manageaccount', compact('users', 'search'));
     }
