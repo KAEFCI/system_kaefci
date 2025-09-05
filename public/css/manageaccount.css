@@ -9,6 +9,26 @@
   box-sizing: border-box;
 }
 
+:root {
+  --kfc-red: #c41411;
+  --kfc-red-dark: #a10f0f;
+  --kfc-bg: #fff;
+  --kfc-accent: #ffdd00;
+  --kfc-accent-dark: #e2c200;
+  --kfc-gray: #444;
+  --kfc-gray-light: #6d6d6d;
+  --kfc-border: #ead4d3;
+  --kfc-soft: #ffe5e4;
+  --radius: 16px;
+  /* Spacing scale (optional) */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 10px;
+  --space-4: 14px;
+  --space-5: 18px;
+  --space-6: 24px;
+}
+
 html, body {
   height: 100%;
   font-family: 'Poppins', sans-serif;
@@ -37,6 +57,10 @@ html, body {
   margin-left: 270px;
   width: calc(100% - 270px);
   background: #fff;
+  padding: 40px;
+  overflow: visible !important;
+}
+
 .page-icon i { color: #c8102e; display: inline-block; width: 36px; height: 36px; font-size:36px }
 
 /* Responsive adjustments */
@@ -57,9 +81,6 @@ html, body {
   }
   h2 { font-size: 1.25rem; gap: 10px }
 }
-  padding: 40px;
- overflow: visible !important;
-}
 
 /* HEADER BAR */
 .header-bar {
@@ -74,13 +95,13 @@ html, body {
 .header-bar h1 {
   font-size: 2rem;
   font-weight: 600;
-  color: #E3002C;
+  color: var(--kfc-red);
 }
 
 /* H2 styling sama seperti managedata */
 h2 {
   margin-bottom: 14px;
-  color: #E3002C;
+  color: var(--kfc-red-dark);
   font-weight: 600;
   font-size: 1.35rem;
   letter-spacing: .4px;
@@ -108,7 +129,7 @@ h2 i.fas, h2 i.fab, h2 i.far, h2 i.fal, h2 i.fad {
   width: 72px;
   height: 72px;
   background: transparent;
-  color: #E3002C;
+  color: var(--kfc-red);
   border-radius: 10px;
   font-size: 24px;
   box-shadow: none;
@@ -379,56 +400,56 @@ h2 i.fas, h2 i.fab, h2 i.far, h2 i.fal, h2 i.fad {
   font-size: .7rem;
 }
 
-.pagination .pager-shell {
+/* Strongly-scoped styles for the pagination container used in manageaccount.blade.php
+   Use the ID selector to avoid being unintentionally overridden by other .pagination rules.
+*/
+#paginationBar.pagination {
+  /* keep layout consistent but more specific */
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 18px;
+  gap: 10px;
+  font-size: .72rem;
+}
+
+#paginationBar.pagination .pager-shell {
   display: flex;
   align-items: center;
   background: #fff;
-  border: 1px solid #ead4d3;
+  border: 1px solid var(--kfc-border);
   padding: 6px 14px;
   border-radius: 40px;
   box-shadow: 0 8px 22px -10px rgba(0, 0, 0, .18), 0 2px 8px -4px rgba(0, 0, 0, .05);
-  gap: 4px;
+  gap: 6px;
 }
 
-.pagination button {
+#paginationBar.pagination button {
   background: transparent;
   border: none;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 6px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: .68rem;
+  font-size: .72rem;
   cursor: pointer;
   position: relative;
-  color: #a10f0f;
+  color: var(--kfc-red-dark);
   border-radius: 28px;
-  transition: .25s;
+  transition: .18s;
   letter-spacing: .4px;
 }
 
-.pagination button:not([disabled]):hover {
-  background: #ffe3e8;
+/* make active page look prominent */
+#paginationBar.pagination button.active {
+  background: var(--kfc-red) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 10px -4px rgba(196, 20, 17, .55) !important;
 }
 
-.pagination button[disabled] {
-  opacity: .40;
-  cursor: not-allowed;
-}
-
-.pagination button.page-btn.active {
-  background: #c8102e;
-  color: #fff;
-  box-shadow: 0 4px 10px -4px rgba(196, 20, 17, .55);
-}
-
-.pagination .ellipsis {
-  padding: 0 4px;
-  font-weight: 600;
-  color: #b06b69;
-  user-select: none;
-}
-
+/* discourage other styles from hiding or moving this element */
+#paginationBar { z-index: 30; }
 
 .pagination .pager-shell {
   display: flex;
@@ -478,6 +499,17 @@ h2 i.fas, h2 i.fab, h2 i.far, h2 i.fal, h2 i.fad {
   font-weight: 600;
   color: #b06b69;
   user-select: none;
+}
+
+.pagination .page-info {
+  background: #fff5f5;
+  border: 1px solid #f4c9c7;
+  color: #7a1e1c;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: .62rem;
+  letter-spacing: .5px;
 }
 
 

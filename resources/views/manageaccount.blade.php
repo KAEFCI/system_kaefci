@@ -112,7 +112,7 @@
           </table>
 
           @if(method_exists($users, 'links'))
-          <div class="pagination">
+          <div id="paginationBar" class="pagination" data-total="{{ $users->total() }}" data-per-page="{{ $users->perPage() }}" data-current-page="{{ $users->currentPage() }}" data-last-page="{{ $users->lastPage() }}">
             <div class="pager-shell">
               @if($users->onFirstPage())
                 <button disabled>&laquo;</button>
@@ -142,6 +142,9 @@
               @else
                 <button disabled>&raquo;</button>
               @endif
+              
+              {{-- page-info (mirip managedata) --}}
+              <div class="page-info">Hal {{ $users->currentPage() }} / {{ $users->lastPage() }}</div>
             </div>
           </div>
           @endif
@@ -199,23 +202,65 @@
 
       // Client-side search (filter rows by ID / Name / Email)
       (function(){
-        const searchInput = document.getElementById('searchEmployee');
+  const searchInput = document.getElementById('searchEmployee');
+  // target the specific pagination container by ID so search logic only affects
+  // the pager for this page (avoids conflicts with other .pagination elements)
+  const paginationWrap = document.getElementById('paginationBar');
         if(!searchInput) return;
-        searchInput.addEventListener('input', function(e){
-          const q = e.target.value.trim().toLowerCase();
+
+        // create small result info node similar to managedata chips
+        let resultChip = document.createElement('div');
+        resultChip.className = 'page-info search-result';
+        resultChip.style.display = 'none';
+        resultChip.style.marginLeft = '8px';
+
+        if(paginationWrap){
+          // append result chip to the pagination container (so it remains visible
+          // even when we hide the pager buttons during search)
+          paginationWrap.appendChild(resultChip);
+        }
+
+        function updateVisibilityAndCount(q){
           const tbody = document.querySelector('table tbody');
           if(!tbody) return;
           const rows = Array.from(tbody.querySelectorAll('tr'));
+          let visible = 0;
           rows.forEach(row => {
             const id = (row.children[0] && row.children[0].textContent || '').toLowerCase();
             const name = (row.children[1] && row.children[1].textContent || '').toLowerCase();
             const email = (row.children[2] && row.children[2].textContent || '').toLowerCase();
             if(!q || id.includes(q) || name.includes(q) || email.includes(q)){
               row.style.display = '';
+              visible++;
             } else {
               row.style.display = 'none';
             }
           });
+
+          // show/hide pagination: hide while searching (non-empty query)
+          if(paginationWrap){
+            const pagerShell = paginationWrap.querySelector('.pager-shell');
+            if(q){
+              // hide the numeric pager but keep the pagination container visible
+              if(pagerShell) pagerShell.style.display = 'none';
+              paginationWrap.style.display = '';
+              resultChip.style.display = 'inline-block';
+              resultChip.textContent = `${visible} results`;
+            } else {
+              // show normal pager
+              if(pagerShell) pagerShell.style.display = '';
+              paginationWrap.style.display = '';
+              resultChip.style.display = 'none';
+            }
+          }
+        }
+
+        // initial state
+        updateVisibilityAndCount('');
+
+        searchInput.addEventListener('input', function(e){
+          const q = e.target.value.trim().toLowerCase();
+          updateVisibilityAndCount(q);
         });
       })();
 

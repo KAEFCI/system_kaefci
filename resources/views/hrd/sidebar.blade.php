@@ -31,6 +31,13 @@
                 <span class="menu-text">Penggajian</span>
             </a>
         </li>
+        <li class="{{ request()->routeIs('hiskaryawan.hrd') ? 'menu-active' : '' }}">
+            <a href="{{ route('hiskaryawan.hrd') }}">
+                <span class="indicator"></span>
+                <span class="icon"><img src="{{ asset('img/Penggajian_icon.png') }}" alt="Settings Icon"></span>
+                <span class="menu-text">History Karyawan</span>
+            </a>
+        </li>
     </ul>
     <div class="user-info" id="userInfo">
         <div class="user-circle"></div>

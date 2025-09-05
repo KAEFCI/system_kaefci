@@ -62,6 +62,10 @@ Route::middleware(['auth:hrd','touch.online'])->group(function(){
     Route::get('/hrd/manage-data', function(){ return view('hrd.managedata'); })->name('managedata.hrd');
     Route::get('/hrd/absensi', function(){ return view('hrd.absensi'); })->name('absensi.hrd');
     Route::get('/hrd/penggajian', function(){ return view('hrd.penggajian'); })->name('penggajian.hrd');
+    Route::get('/hrd/hiskaryawan', function(){ return view('hrd.hiskaryawan'); })->name('hiskaryawan.hrd');
+    // History Karyawan endpoints (store/destroy)
+    Route::post('/history-karyawan', [\App\Http\Controllers\Hrd\HistoryKaryawanController::class, 'store'])->name('history.karyawan.store');
+    Route::delete('/history-karyawan/{id}', [\App\Http\Controllers\Hrd\HistoryKaryawanController::class, 'destroy'])->name('history.karyawan.destroy');
 // Endpoint untuk modal tambah team
 Route::get('/modal/add-team', function() {
     return view('hrd.add-team');
