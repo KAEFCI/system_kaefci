@@ -56,7 +56,7 @@ class AccountController extends Controller
 
         // Jika password diisi, update dan hash
         if ($request->filled('password')) {
-            $user->password = \Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
         $user->save();
@@ -71,29 +71,32 @@ class AccountController extends Controller
             'password' => 'required'
         ]);
 
-        $credentials = $request->only('email','password');
-        $user = User::where('email',$request->email)->first();
-        if(!$user){
-            return back()->withErrors(['email'=>'Email tidak terdaftar.'])->withInput();
+        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email tidak terdaftar.'])->withInput();
         }
-        if($user->status === 'disable'){
-            return back()->withErrors(['email'=>'Akun dinonaktifkan. Hubungi administrator.'])->withInput();
+        if ($user->status === 'disable') {
+            return back()->withErrors(['email' => 'Akun dinonaktifkan. Hubungi administrator.'])->withInput();
         }
         $roleGuard = $user->role; // guard name = role
-        $allowedGuards = ['superadmin','hrd','supervisor','karyawan'];
-        if(!in_array($roleGuard,$allowedGuards,true)){
-            return back()->withErrors(['email'=>'Role tidak dikenali.'])->withInput();
+        $allowedGuards = ['superadmin', 'hrd', 'supervisor', 'karyawan'];
+        if (!in_array($roleGuard, $allowedGuards, true)) {
+            return back()->withErrors(['email' => 'Role tidak dikenali.'])->withInput();
         }
         // Attempt hanya pada guard role agar sesi lain (guard berbeda) tidak tersentuh
-        if(!Auth::guard($roleGuard)->attempt($credentials)){
-            return back()->withErrors(['email'=>'Email atau password salah.'])->withInput();
+        if (!Auth::guard($roleGuard)->attempt($credentials)) {
+            return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
-        $authUser = Auth::guard($roleGuard)->user();
-        $authUser->forceFill([
-            'login_status'  => 'online',
-            'last_login_at' => now(),
-        ])->save();
-        return match($roleGuard){
+        // Refetch as Eloquent model to ensure save() is available
+        $authUserId = Auth::guard($roleGuard)->id();
+        $authUser = User::find($authUserId);
+        if ($authUser) {
+            $authUser->login_status = 'online';
+            $authUser->last_login_at = now();
+            $authUser->save();
+        }
+        return match ($roleGuard) {
             'superadmin' => redirect()->route('dashboard'),
             'hrd' => redirect()->route('dashboard.hrd'),
             'supervisor' => redirect()->route('dashboard.supervisor'),
@@ -104,20 +107,29 @@ class AccountController extends Controller
 
     public function logout(Request $request)
     {
-        $guards = ['superadmin','hrd','supervisor','karyawan'];
+        $guards = ['superadmin', 'hrd', 'supervisor', 'karyawan'];
         $target = $request->input('guard');
-        if(!$target || !in_array($target,$guards,true)){
-            foreach($guards as $g){ if(Auth::guard($g)->check()){ $target=$g; break; } }
+        if (!$target || !in_array($target, $guards, true)) {
+            foreach ($guards as $g) {
+                if (Auth::guard($g)->check()) {
+                    $target = $g;
+                    break;
+                }
+            }
         }
-        if($target && Auth::guard($target)->check()){
-            $u = Auth::guard($target)->user();
-            if($u){ $u->forceFill(['login_status'=>'offline'])->save(); }
+        if ($target && Auth::guard($target)->check()) {
+            $authUserId = Auth::guard($target)->id();
+            $u = User::find($authUserId);
+            if ($u instanceof User) {
+                $u->login_status = 'offline';
+                $u->save();
+            }
             Auth::guard($target)->logout();
         }
         // Jika masih ada guard lain aktif JANGAN invalidate session (biar tidak logout massal / tidak 419)
-        foreach($guards as $g){
-            if(Auth::guard($g)->check()){
-                return match($g){
+        foreach ($guards as $g) {
+            if (Auth::guard($g)->check()) {
+                return match ($g) {
                     'superadmin' => redirect()->route('dashboard'),
                     'hrd' => redirect()->route('dashboard.hrd'),
                     'supervisor' => redirect()->route('dashboard.supervisor'),
@@ -135,17 +147,26 @@ class AccountController extends Controller
     // Logout spesifik berdasarkan role (guard) tanpa memengaruhi guard lain
     public function logoutRole(Request $request, string $role)
     {
-        $guards = ['superadmin','hrd','supervisor','karyawan'];
-        if(!in_array($role,$guards,true)){
-            return back()->with('error','Role tidak valid');
+        $guards = ['superadmin', 'hrd', 'supervisor', 'karyawan'];
+        if (!in_array($role, $guards, true)) {
+            return back()->with('error', 'Role tidak valid');
         }
-        if(Auth::guard($role)->check()){
+
+        if (Auth::guard($role)->check()) {
             $u = Auth::guard($role)->user();
-            if($u){ $u->forceFill(['login_status'=>'offline'])->save(); }
+            if ($u instanceof User) {
+                $u->login_status = 'offline';
+                $u->save();
+            }
             Auth::guard($role)->logout();
         }
+
         // Jika masih ada guard lain aktif, kembali ke halaman sebelumnya / root (root akan redirect ke guard aktif lain)
-        foreach($guards as $g){ if(Auth::guard($g)->check()){ return redirect()->back(); } }
+        foreach ($guards as $g) {
+            if (Auth::guard($g)->check()) {
+                return redirect()->back();
+            }
+        }
         // Kalau tidak ada guard lain -> ke login tanpa invalidate global (biarkan sesi agar tidak ganggu token tab lain)
         return redirect()->route('login');
     }
@@ -156,10 +177,10 @@ class AccountController extends Controller
         $users = User::query();
 
         if ($search) {
-            $users->where(function($q) use ($search) {
+            $users->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('role', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('role', 'like', "%{$search}%");
             });
         }
 

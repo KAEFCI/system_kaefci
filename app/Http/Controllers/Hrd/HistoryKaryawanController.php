@@ -1,13 +1,28 @@
 <?php
+
 namespace App\Http\Controllers\Hrd;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use App\Models\HistoryKaryawan;
 
 class HistoryKaryawanController extends BaseController
 {
+    public function index(Request $request)
+    {
+        $q = HistoryKaryawan::query();
+        if ($search = $request->get('search')) {
+            $q->where(function ($w) use ($search) {
+                $w->where('nama_karyawan', 'like', "%$search%")
+                    ->orWhere('jabatan', 'like', "%$search%")
+                    ->orWhere('status_kepegawaian', 'like', "%$search%")
+                    ->orWhere('catatan', 'like', "%$search%");
+            });
+        }
+        $data = $q->orderByDesc('created_at')->paginate(10)->appends(['search' => $search]);
+        return view('hrd.hiskaryawan', compact('data'));
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -20,39 +35,45 @@ class HistoryKaryawanController extends BaseController
             'catatan' => 'nullable|string',
         ]);
 
-        // Try to persist to DB table if exists, otherwise fallback to session storage
-        $table = 'history_karyawan';
-        if (Schema::hasTable($table)) {
-            DB::table($table)->insert([
-                'nama_karyawan' => $data['nama_karyawan'],
-                'jabatan' => $data['jabatan'],
-                'tanggal_masuk' => $data['tanggal_masuk'],
-                'tanggal_keluar' => $data['tanggal_keluar'] ?? null,
-                'status_kepegawaian' => $data['status_kepegawaian'],
-                'is_bermasalah' => isset($data['is_bermasalah']) ? 1 : 0,
-                'catatan' => $data['catatan'] ?? null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        } else {
-            $store = session()->get('history_karyawan_demo', []);
-            $store[] = array_merge($data, ['id' => uniqid(), 'created_at' => now()]);
-            session()->put('history_karyawan_demo', $store);
-        }
+        HistoryKaryawan::create([
+            'nama_karyawan' => $data['nama_karyawan'],
+            'jabatan' => $data['jabatan'],
+            'tanggal_masuk' => $data['tanggal_masuk'],
+            'tanggal_keluar' => $data['tanggal_keluar'] ?? null,
+            'status_kepegawaian' => $data['status_kepegawaian'],
+            'is_bermasalah' => isset($data['is_bermasalah']) ? 1 : 0,
+            'catatan' => $data['catatan'] ?? null,
+        ]);
 
         return redirect()->back()->with('success', 'History karyawan disimpan.');
     }
 
+    public function update(Request $request, HistoryKaryawan $historyKaryawan)
+    {
+        $data = $request->validate([
+            'nama_karyawan' => 'required|string|max:191',
+            'jabatan' => 'required|string|max:191',
+            'tanggal_masuk' => 'required|date',
+            'tanggal_keluar' => 'nullable|date',
+            'status_kepegawaian' => 'required|string',
+            'is_bermasalah' => 'nullable',
+            'catatan' => 'nullable|string',
+        ]);
+        $historyKaryawan->update([
+            'nama_karyawan' => $data['nama_karyawan'],
+            'jabatan' => $data['jabatan'],
+            'tanggal_masuk' => $data['tanggal_masuk'],
+            'tanggal_keluar' => $data['tanggal_keluar'] ?? null,
+            'status_kepegawaian' => $data['status_kepegawaian'],
+            'is_bermasalah' => isset($data['is_bermasalah']) ? 1 : 0,
+            'catatan' => $data['catatan'] ?? null,
+        ]);
+        return redirect()->back()->with('success', 'History karyawan diperbarui.');
+    }
+
     public function destroy($id)
     {
-        $table = 'history_karyawan';
-        if (Schema::hasTable($table)) {
-            DB::table($table)->where('id', $id)->delete();
-        } else {
-            $store = session()->get('history_karyawan_demo', []);
-            $store = array_filter($store, function($r) use ($id){ return (string)($r['id'] ?? '') !== (string)$id; });
-            session()->put('history_karyawan_demo', $store);
-        }
+        HistoryKaryawan::where('id', $id)->delete();
         return redirect()->back()->with('success', 'History karyawan dihapus.');
     }
 }
